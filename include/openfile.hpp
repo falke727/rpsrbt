@@ -13,7 +13,9 @@ using namespace std;
 
 class Rule {
 private:
+  static unsigned _length_of_rule;
   static unsigned _number_of_rule;
+  static vector<unsigned> _variable_order;
   unsigned _ruleNumber;
   string _ruleBitString;
 public:
@@ -28,8 +30,12 @@ public:
   }
   unsigned getRuleNumber() { return _ruleNumber; }
   string getRuleBitString() { return _ruleBitString; }
+  static void setLengthOfRule(unsigned l) { _length_of_rule = l; }
+  static unsigned getLengthOfRule() { return _length_of_rule; }
   static unsigned getNumberOfRule() { return _number_of_rule; }
   static void decNumberOfRule() { --_number_of_rule; }
+  static void setVariableOrder(vector<unsigned>);
+  static vector<unsigned> getVariableOrder() { return _variable_order; }
   void setRuleNumber(unsigned i) { _ruleNumber = i; }
   unsigned size() { return _ruleBitString.size(); }
 };

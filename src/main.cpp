@@ -42,10 +42,7 @@ int main(int argc, char* argv[])
 
     /* make a Reduced Pointed Single-Run-Based Trie */
     rpsrbt = new RPSRBT(*rulelist);
-    //
-    //
-    //
-    //
+    rpsrbt->traverse();
 
   } else {
     printf("Usage: main <rule list> <pseudo packets>\n");

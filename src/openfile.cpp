@@ -84,6 +84,10 @@ void readPackets(char *&filename, list<string>* packets) throw (string)
     throw "Error: Input Packets file has no packt.\n";
 }
 
+void Rule::setVariableOrder(vector<unsigned> order) {
+  _variable_order = order;
+}
+
 void readRulelist(char *&filename, list<Rule>* rulelist) throw (string)
 {
   ifstream ifs(filename);
@@ -93,11 +97,26 @@ void readRulelist(char *&filename, list<Rule>* rulelist) throw (string)
 
   unsigned rulenumber = 1;
   string tmp;
+  if (getline(ifs,tmp)) {
+    rulelist->push_back(Rule(rulenumber,tmp));
+    ++rulenumber;
+    Rule::setLengthOfRule(tmp.size());
+  }
+
   while (getline(ifs, tmp)) {
     rulelist->push_back(Rule(rulenumber,tmp));
     ++rulenumber;
   }
   ifs.close();
+
+  vector<unsigned> ord;
+  // for (unsigned i = 1; i <= Rule::getLengthOfRule(); ++i)
+  //   ord.push_back(i);
+  ord.push_back(2);
+  ord.push_back(4);
+  ord.push_back(3);
+  ord.push_back(1);
+  Rule::setVariableOrder(ord);
 
   if (0 == rulelist->size())
     throw "Error: Input Rulelist file has no rule.\n";

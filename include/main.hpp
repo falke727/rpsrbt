@@ -36,3 +36,5 @@
 // long unsigned MR::_number_of_node_of_mr = 0;
 long unsigned RPSRBT::_number_of_node_of_rpsrbt = 0;
 unsigned Rule::_number_of_rule = 0;
+vector<unsigned> Rule::_variable_order;
+unsigned Rule::_length_of_rule;
