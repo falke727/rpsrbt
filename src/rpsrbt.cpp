@@ -28,9 +28,9 @@ void RPSRBTNode::initRootNode(unsigned v) {
   _left = _right = NULL;
 }
 
-void RPSRBTNode::initTerminalNode(unsigned& n) {
+void RPSRBTNode::initTerminalNode() {
   _var = 0;
-  _rule = n+1;
+  _rule = Rule::getNumberOfRule()+1;
   _label = "terminal";
   _term = true;
   _left = _right = NULL;
@@ -38,21 +38,21 @@ void RPSRBTNode::initTerminalNode(unsigned& n) {
 
 RPSRBT::RPSRBT(list<Rule> &rulelist) {
   unsigned w = Rule::getLengthOfRule();
-  unsigned n = Rule::getNumberOfRule();
+  //unsigned n = Rule::getNumberOfRule();
   vector<unsigned> ord = Rule::getVariableOrder();
 
   for (unsigned i = 0; i < w; ++i) {
     roots.push_back(new RPSRBTNode());
-    terminals.push_back(new RPSRBTNode());
     roots[i]->initRootNode(ord[i]);
-    terminals[i]->initTerminalNode(n);
   }
 
   for (auto r : rulelist) {
-    //cout << r.getRuleBitString() << "--> " << cutOutSingleRunFromRule(r) << endl;
     SRun run = cutOutSingleRunFromRule(r);
-    makeRPSRBT(run);
+    makeBackboneRPSRBT(run);
   }
+
+  connectT4ToTerminalNode();
+  addPointers();
 }
 
 SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {
@@ -73,7 +73,7 @@ SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {
   return SRun(r, rule.getRuleNumber(), start);
 }
 
-void RPSRBT::makeRPSRBT(SRun run) {
+void RPSRBT::makeBackboneRPSRBT(SRun run) {
   string label = run.getLabel();
   unsigned l = label.size();
   unsigned s = run.getStartPosition()-1;
@@ -128,6 +128,29 @@ void RPSRBT::makeRPSRBT(SRun run) {
   ptr->addRule(run.getNum());
 }
 
+void RPSRBT::connectT4ToTerminalNode() {
+  terminal = new RPSRBTNode();
+  terminal->initTerminalNode();
+  unsigned w = Rule::getLengthOfRule();
+  if (NULL == roots[w-1]->getLeft()) { roots[w-1]->setLeft(terminal); }
+  if (NULL == roots[w-1]->getRight()) { roots[w-1]->setRight(terminal); }
+}
+
+void RPSRBT::addPointers() {
+  for (auto ptr : roots)
+    traverseAndAddPointer(ptr, 1);
+}
+
+void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, unsigned i) {
+
+  if (NULL == ptr) { return ; }
+
+  if (NULL == ptr->getLeft())
+    printf("hoge\n");
+  if (NULL == ptr->getRight())
+    printf("hoge\n");
+}
+
 void RPSRBT::traverse() {
   for (auto ptr : roots) {
     preOrder(ptr);
@@ -136,7 +159,7 @@ void RPSRBT::traverse() {
 
 void RPSRBT::preOrder(RPSRBTNode* ptr) {
   if (NULL == ptr) { return ; }
-  // cout << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << endl;
+  cout << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << endl;
   preOrder(ptr->getLeft());
   preOrder(ptr->getRight());
 }

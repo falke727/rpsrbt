@@ -51,7 +51,7 @@ public:
   RPSRBTNode(unsigned &, string);
   ~RPSRBTNode() { /* printf("call the RPSRBTNode deconstructor.\n"); */ }
   void initRootNode(unsigned);
-  void initTerminalNode(unsigned&);
+  void initTerminalNode();
   void setTermTrue() { _term = true; }
   void setVar(unsigned v) { _var = v; }
   void setLeft(RPSRBTNode *l) { _left = l; }
@@ -67,7 +67,7 @@ public:
 class RPSRBT {
 private:
   vector<RPSRBTNode*> roots;
-  vector<RPSRBTNode*> terminals; // terminal node which var is n+1 
+  RPSRBTNode* terminal; // terminal node which var is n+1 
   static long unsigned _number_of_node_of_rpsrbt;
   static vector<unsigned> _variable_order;
   // friend ostream& operator<<(ostream&, const RPSRBT&);
@@ -76,7 +76,10 @@ public:
   RPSRBT(list<Rule> &);
   ~RPSRBT() { /* printf("call the RPSRBT deconstructor.\n"); */ }
   SRun cutOutSingleRunFromRule(Rule&);
-  void makeRPSRBT(SRun);
+  void makeBackboneRPSRBT(SRun);
+  void connectT4ToTerminalNode();
+  void addPointers();
+  void traverseAndAddPointer(RPSRBTNode*, unsigned);
   void traverse();
   void preOrder(RPSRBTNode*);
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
