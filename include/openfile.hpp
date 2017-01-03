@@ -31,6 +31,7 @@ public:
   static unsigned getNumberOfRule() { return _number_of_rule; }
   static void decNumberOfRule() { --_number_of_rule; }
   void setRuleNumber(unsigned i) { _ruleNumber = i; }
+  unsigned size() { return _ruleBitString.size(); }
 };
 
 bool isIncluded(string, string);

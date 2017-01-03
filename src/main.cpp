@@ -4,6 +4,7 @@ int main(int argc, char* argv[])
 {
   list<Rule> *rulelist = new list<Rule>;
   list<string> *packets = new list<string>;
+  RPSRBT *rpsrbt;
   // bool classbench_flag = false;
 
   /* check arguments */
@@ -40,6 +41,7 @@ int main(int argc, char* argv[])
     }
 
     /* make a Reduced Pointed Single-Run-Based Trie */
+    rpsrbt = new RPSRBT(*rulelist);
     //
     //
     //
