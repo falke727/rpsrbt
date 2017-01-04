@@ -46,6 +46,7 @@ private:
   bool _term;     // mark whether terminal Rule 
                   // e.g the node of the run of Rule 1 must be terminal node
   // list<RPSRBTNode*>* _parents;
+  bool _reach;    // Whether is this node reachble from the root of RPSRBT[0]
   list<RPSRBTNode*> _parents;
   RPSRBTNode* _left;
   RPSRBTNode* _right;
@@ -59,11 +60,14 @@ public:
   void initRootNode(unsigned, int);
   void initTerminalNode();
   void setTermTrue() { _term = true; }
+  void setReachTrue() { _reach = true; }
   void setVar(unsigned v) { _var = v; }
   void setLeft(RPSRBTNode *l) { _left = l; }
   void setRight(RPSRBTNode *r) { _right = r; }
   void addRule(unsigned n) { _rule = n; }
+  void updateCandidate(unsigned c) { _candidate = c; }
   bool isTerm() { return _term; }
+  bool isReachable() { return _reach; }
   unsigned getVar() { return _var; }
   string getLabel() { return _label; }
   unsigned getRule() { return _rule; }
@@ -90,6 +94,8 @@ public:
   void addPointers();
   void traverseAndAddPointer(RPSRBTNode*);
   void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
+  void checkReachableAndUpdateCandidate();
+  void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, unordered_set<RPSRBTNode*>);
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
   /* functions for debug */
   void traverse();
