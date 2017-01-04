@@ -41,16 +41,20 @@ private:
   unsigned _var;  // var of the terminal node is 0
   unsigned _rule; // if a node has Rule(Run) i then _rule = i
   int _tn;        // Trie number T[tn]
+  unsigned _candidate; // higest candaite rule in the subtree
   string _label;
   bool _term;     // mark whether terminal Rule 
                   // e.g the node of the run of Rule 1 must be terminal node
+  // list<RPSRBTNode*>* _parents;
   list<RPSRBTNode*> _parents;
   RPSRBTNode* _left;
   RPSRBTNode* _right;
 public:
   RPSRBTNode() { }
   RPSRBTNode(unsigned &, int, string);
+  RPSRBTNode(unsigned &, int, unsigned, string, RPSRBTNode*);
   RPSRBTNode(unsigned &, int, string, bool);
+  RPSRBTNode(unsigned &, int, unsigned, string, bool, RPSRBTNode*);
   ~RPSRBTNode() { /* printf("call the RPSRBTNode deconstructor.\n"); */ }
   void initRootNode(unsigned, int);
   void initTerminalNode();
@@ -64,6 +68,7 @@ public:
   string getLabel() { return _label; }
   unsigned getRule() { return _rule; }
   int getTrieNumber() { return _tn; }
+  unsigned getCandidate() { return _candidate; }
   RPSRBTNode* getLeft() { return _left; }
   RPSRBTNode* getRight() { return _right; }
 };
@@ -85,9 +90,12 @@ public:
   void addPointers();
   void traverseAndAddPointer(RPSRBTNode*);
   void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
+  static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
+  /* functions for debug */
   void traverse();
   void preOrder(RPSRBTNode*);
-  static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
+  void preOrder2(RPSRBTNode*, int);
+
 };
 
 #endif
