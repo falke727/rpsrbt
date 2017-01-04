@@ -5,11 +5,11 @@ int main(int argc, char* argv[])
   list<Rule> *rulelist = new list<Rule>;
   list<string> *packets = new list<string>;
   RPSRBT *rpsrbt;
-  // bool classbench_flag = false;
+  bool classbench_flag = false;
 
   /* check arguments */
   if (!strcmp("-c",argv[1]) && argc == 4) {
-    // classbench_flag = true;
+    classbench_flag = true;
     try {
       readClassBenchRulelist(argv[2],rulelist);
     } catch (string error_message) {
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
     /* make a Reduced Pointed Single-Run-Based Trie */
     rpsrbt = new RPSRBT(*rulelist);
-    rpsrbt->traverse();
+    // rpsrbt->traverse();
 
   } else {
     printf("Usage: main <rule list> <pseudo packets>\n");
@@ -50,15 +50,17 @@ int main(int argc, char* argv[])
   }
 
   /* do the sequential search */
-  // list< list<Result> > results;
-  // list<Result>* resultOfSequential = new list<Result>;
-  // if (true == classbench_flag) 
-  //   classifyViaSequentialSearchClassBench(rulelist, packets, resultOfSequential);
-  // else
-  //   classifyViaSequentialSearch(rulelist, packets, resultOfSequential);
-  // cout << "Sequential Search Time: " << Result::getLatencySequential() << endl;
-  // cout << "Sequential Search Comp: " << Result::getCompareNumberOfSequential() << endl;
+  list< list<Result> > results;
+  list<Result>* resultOfSequential = new list<Result>;
+  list<Result>* resultOfRPSRBT = new list<Result>;
+  if (true == classbench_flag) 
+    ; //classifyViaSequentialSearchClassBench(rulelist, packets, resultOfSequential);
+  else
+    classifyViaSequentialSearch(rulelist, packets, resultOfSequential);
+  cout << "Sequential Search Time: " << Result::getLatencySequential() << endl;
+  cout << "Sequential Search Comp: " << Result::getCompareNumberOfSequential() << endl;
 	
+  classifyViaRPSRBT(rpsrbt, packets, resultOfRPSRBT);
 
   // assert(0 == checkClassifyResult(resultOfSequential, results));
 
