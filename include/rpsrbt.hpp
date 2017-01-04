@@ -77,6 +77,7 @@ public:
   unsigned getCandidate() { return _candidate; }
   RPSRBTNode* getLeft() { return _left; }
   RPSRBTNode* getRight() { return _right; }
+  list<RPSRBTNode*> getParents() { return _parents; }
 };
 
 struct LRPair {
@@ -124,7 +125,7 @@ public:
   void traverseForMakeTerminalNodes(RPSRBTNode*, unordered_set<RPSRBTNode*>);
   void nodeShareReduction();
   void traverseForNodeShareReduction(RPSRBTNode*, unordered_map<LRPair, RPSRBTNode*>);
-  void directConnectReduction();
+  void directConnectReduction(RPSRBTNode*);
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
   /* functions for debug */
   void traverse();
