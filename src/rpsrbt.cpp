@@ -79,7 +79,7 @@ void RPSRBT::makeBackboneRPSRBT(SRun run) {
   unsigned s = run.getStartPosition()-1;
   vector<unsigned> ord = Rule::getVariableOrder();
 
-  // cout << s+1 << ": " << label << endl;
+  cout << s << ": " << label << endl;
   RPSRBTNode* ptr = roots[s];
   
   for (unsigned i = s, j = 1; i < s+l-1; ++i, ++j) {
@@ -107,7 +107,7 @@ void RPSRBT::makeBackboneRPSRBT(SRun run) {
 	ptr->setLeft(new RPSRBTNode(zero,label));
       }
       else {
-	ptr->setLeft(new RPSRBTNode(ord[l],label));
+	ptr->setLeft(new RPSRBTNode(ord[s+l],label));
       }
       RPSRBT::incNumOfNode();
     }
@@ -119,7 +119,7 @@ void RPSRBT::makeBackboneRPSRBT(SRun run) {
 	ptr->setRight(new RPSRBTNode(zero,label));
       }
       else {
-	ptr->setRight(new RPSRBTNode(ord[l],label));
+	ptr->setRight(new RPSRBTNode(ord[s+l],label));
       }
       RPSRBT::incNumOfNode();
     }
@@ -137,8 +137,9 @@ void RPSRBT::connectT4ToTerminalNode() {
 }
 
 void RPSRBT::addPointers() {
-  for (auto ptr : roots)
-    traverseAndAddPointer(ptr, 1);
+  unsigned w = roots.size();
+  for (int i = w-2; 0 <= i; --i)
+    ; //traverseAndAddPointer(roots[i], w-i);
 }
 
 void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, unsigned i) {
@@ -146,9 +147,9 @@ void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, unsigned i) {
   if (NULL == ptr) { return ; }
 
   if (NULL == ptr->getLeft())
-    printf("hoge\n");
+    ; //printf("hoge\n");
   if (NULL == ptr->getRight())
-    printf("hoge\n");
+    ; // printf("hoge\n");
 }
 
 void RPSRBT::traverse() {
