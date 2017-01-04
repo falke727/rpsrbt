@@ -109,6 +109,7 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
   addPointers();
   checkReachableAndUpdateCandidate();
   makeTerminalNodes();
+  nodeShareReduction();
 }
 
 SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {
@@ -294,6 +295,32 @@ void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, unordered_set<RPSRBTN
     traverseForMakeTerminalNodes(ptr->getLeft(), D);
     traverseForMakeTerminalNodes(ptr->getRight(), D);
   }
+}
+
+void RPSRBT::nodeShareReduction() {
+  unordered_map<LRPair,RPSRBTNode*> D;
+  traverseForNodeShareReduction(roots[0], D);
+}
+
+void RPSRBT::traverseForNodeShareReduction(RPSRBTNode* ptr, unordered_map<LRPair, RPSRBTNode*> D) { 
+  if (NULL == ptr || ptr->isTerm()) { return ; }
+  LRPair left_right;
+  left_right.l = ptr->getLeft();
+  left_right.r = ptr->getRight();
+
+  auto it = D.find(left_right);
+  if(it != D.end()) { 
+    cout << "Share!\n";
+    return ;
+  }
+  D[left_right] = ptr;
+
+  traverseForNodeShareReduction(ptr->getLeft(), D);
+  traverseForNodeShareReduction(ptr->getRight(), D);
+}
+
+void RPSRBT::directConnectReduction() {
+  ;
 }
 
 void RPSRBT::traverse() {

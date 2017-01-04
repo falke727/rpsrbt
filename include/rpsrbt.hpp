@@ -7,13 +7,13 @@
 #include <openfile.hpp>
 #endif
 
+//#include <bits/stdc++.h>
 #include <vector>
 #include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <unordered_set>
-
-// a node for Reduced Pointed Single Run-Based Trie
+#include <unordered_map>
 
 // // Single Run
 class SRun {
@@ -79,6 +79,28 @@ public:
   RPSRBTNode* getRight() { return _right; }
 };
 
+struct LRPair {
+  RPSRBTNode*l, *r;
+  bool friend operator==(const LRPair &lhs, const LRPair &rhs) {
+    return lhs.l == rhs.l && lhs.r == rhs.r;
+  }
+};
+
+namespace std {
+  template <>
+  struct hash<LRPair> {
+    size_t operator()(const LRPair &pair) const {
+      size_t seed = 0;
+      auto l_hash = hash<RPSRBTNode*>()(pair.l);
+      auto r_hash = hash<RPSRBTNode*>()(pair.r);
+
+      seed ^= l_hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+      seed ^= r_hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+      return seed;
+    }
+  };
+}
+
 class RPSRBT {
 private:
   vector<RPSRBTNode*> roots;
@@ -100,6 +122,9 @@ public:
   void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, unordered_set<RPSRBTNode*>);
   void makeTerminalNodes();
   void traverseForMakeTerminalNodes(RPSRBTNode*, unordered_set<RPSRBTNode*>);
+  void nodeShareReduction();
+  void traverseForNodeShareReduction(RPSRBTNode*, unordered_map<LRPair, RPSRBTNode*>);
+  void directConnectReduction();
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
   /* functions for debug */
   void traverse();
