@@ -65,7 +65,9 @@ public:
   void setLeft(RPSRBTNode *l) { _left = l; }
   void setRight(RPSRBTNode *r) { _right = r; }
   void addRule(unsigned n) { _rule = n; }
+  void addParent(RPSRBTNode *p) { _parents.push_back(p); }
   void updateCandidate(unsigned c) { _candidate = c; }
+  void deleteParent(RPSRBTNode *p) { _parents.remove(p); }
   bool isTerm() { return _term; }
   bool isReachable() { return _reach; }
   unsigned getVar() { return _var; }
@@ -96,6 +98,8 @@ public:
   void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
   void checkReachableAndUpdateCandidate();
   void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, unordered_set<RPSRBTNode*>);
+  void makeTerminalNodes();
+  void traverseForMakeTerminalNodes(RPSRBTNode*, unordered_set<RPSRBTNode*>);
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
   /* functions for debug */
   void traverse();

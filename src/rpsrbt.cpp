@@ -108,6 +108,7 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
   connectT4ToTerminalNode();
   addPointers();
   checkReachableAndUpdateCandidate();
+  makeTerminalNodes();
 }
 
 SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {
@@ -231,8 +232,14 @@ void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* high, bool d) {
       else { break ; }
     }
     if (j == label.size()) {
-      if (d) { high->setRight(low->getRight()); }
-      else { high->setLeft(low->getLeft()); }
+      if (d) { 
+	high->setRight(low->getRight()); 
+	(low->getRight())->addParent(high);
+      }
+      else { 
+	high->setLeft(low->getLeft());
+	(low->getLeft())->addParent(high);
+      }
       break;
     }
   }
@@ -247,9 +254,10 @@ void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, unorde
   if (NULL == ptr) { return ; }
   auto it = D.find(ptr);
   if (it != D.end()) { return ; }
-
   D.insert(ptr);
+
   ptr->setReachTrue();
+
   if (NULL != ptr->getLeft())
     if ((ptr->getLeft())->getCandidate() < ptr->getCandidate())
       ptr->updateCandidate((ptr->getLeft())->getCandidate());
@@ -259,6 +267,33 @@ void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, unorde
 
   traverseForCheckReachableAndUpdateCandidate(ptr->getLeft(), D);
   traverseForCheckReachableAndUpdateCandidate(ptr->getRight(), D);
+}
+
+void RPSRBT::makeTerminalNodes() {
+  unordered_set<RPSRBTNode*> D;
+  traverseForMakeTerminalNodes(roots[0], D);
+}
+
+void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, unordered_set<RPSRBTNode*> D) {
+  if (NULL == ptr || ptr->isTerm()) { return ; }
+  auto it = D.find(ptr);
+  if (it != D.end()) { return ; }
+  D.insert(ptr);
+
+  if (ptr->getRule() > 0) {
+    if ((ptr->getLeft())->getCandidate() > ptr->getCandidate()) {
+      if ((ptr->getRight())->getCandidate() > ptr->getCandidate()) {
+	(ptr->getLeft()->deleteParent(ptr));
+	(ptr->getRight()->deleteParent(ptr));
+	ptr->setLeft(NULL), ptr->setRight(NULL);
+	ptr->setTermTrue();
+      }
+    }
+  }
+  else {
+    traverseForMakeTerminalNodes(ptr->getLeft(), D);
+    traverseForMakeTerminalNodes(ptr->getRight(), D);
+  }
 }
 
 void RPSRBT::traverse() {
