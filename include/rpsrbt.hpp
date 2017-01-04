@@ -126,6 +126,7 @@ public:
   void nodeShareReduction();
   void traverseForNodeShareReduction(RPSRBTNode*, unordered_map<LRPair, RPSRBTNode*>);
   void directConnectReduction(RPSRBTNode*);
+  RPSRBTNode* getRoot() { return roots[0]; }
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
   /* functions for debug */
   void traverse();

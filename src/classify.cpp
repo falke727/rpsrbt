@@ -3,6 +3,8 @@
 #include <classify.hpp>
 
 void classifyViaRPSRBT(RPSRBT* rpsrbt, list<string>*& packets, list<Result>* results) {
+  list<string>::iterator pIt, pEnd;
+  pIt = packets->begin(), pEnd = packets->end();
   struct timeval startTime, endTime;
   double sec_timeOfDay;
   unsigned result;
@@ -10,16 +12,38 @@ void classifyViaRPSRBT(RPSRBT* rpsrbt, list<string>*& packets, list<Result>* res
   Result::initCompareNumberOfRPSRBT();
   gettimeofday(&startTime, NULL);
 
-  // for (auto p : packets) {
-  //   ; //result = sequentialSearch(rulelist, p);
-  //   // Result r(*pIt, result);
-  //   // results->push_back(r);
-  // }
+  while (pIt != pEnd) {
+    result = rpsrbtSearch(rpsrbt, *pIt);
+    Result r(*pIt, result);
+    results->push_back(r);
+    ++pIt;
+  }
 
   gettimeofday(&endTime, NULL);
   sec_timeOfDay = (endTime.tv_sec - startTime.tv_sec)
     + (endTime.tv_usec - startTime.tv_usec) / 1000000.0;
   Result::setLatencyRPSRBT(sec_timeOfDay);
+}
+
+unsigned rpsrbtSearch(RPSRBT* rpsrbt, string& packet) {
+  RPSRBTNode* ptr = rpsrbt->getRoot();
+  unsigned candidate = Rule::getNumberOfRule()+1;
+
+  while (!ptr->isTerm()) {
+    if ('0' == packet[ptr->getVar()-1])
+      ptr = ptr->getLeft(), Result::incCompareNumberOfRPSRBT();
+    else
+      ptr = ptr->getRight(), Result::incCompareNumberOfRPSRBT();
+    if (ptr->getRule() > 0 && ptr->getRule() < candidate)
+      candidate = ptr->getRule(), Result::incCompareNumberOfRPSRBT();
+  }
+
+  if (ptr->getRule() < candidate)
+    candidate = ptr->getRule(), Result::incCompareNumberOfRPSRBT();
+
+  cout << packet << " --> " << candidate << endl;
+
+  return candidate;
 }
 
 void classifyViaSequentialSearch(list<Rule>*& rulelist, list<string>*& packets, list<Result>* results)
@@ -67,10 +91,14 @@ unsigned sequentialSearch(list<Rule>*& rulelist, string& packet)
   list<Rule>::iterator ruleItEnd = rulelist->end();
 
   while (ruleIt != ruleItEnd) {
-    if (compareRuleAndPacket(*ruleIt, packet))
+    if (compareRuleAndPacket(*ruleIt, packet)) {
+      cout << packet << " --> " << ruleIt->getRuleNumber() << endl;
       return ruleIt->getRuleNumber();
+    }
     ++ruleIt;
   }
+
+  cout << packet << " --> " << rulelist->size()+1 << endl;
 	
   return rulelist->size()+1;
 }

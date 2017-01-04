@@ -61,6 +61,8 @@ int main(int argc, char* argv[])
   cout << "Sequential Search Comp: " << Result::getCompareNumberOfSequential() << endl;
 	
   classifyViaRPSRBT(rpsrbt, packets, resultOfRPSRBT);
+  cout << "RPSRBT Search Time:     " << Result::getLatencyRPSRBT() << endl;
+  cout << "RPSRBT Search Comp:     " << Result::getCompareNumberOfRPSRBT() << endl;
 
   // assert(0 == checkClassifyResult(resultOfSequential, results));
 

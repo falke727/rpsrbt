@@ -110,12 +110,12 @@ void readRulelist(char *&filename, list<Rule>* rulelist) throw (string)
   ifs.close();
 
   vector<unsigned> ord;
-  // for (unsigned i = 1; i <= Rule::getLengthOfRule(); ++i)
-  //   ord.push_back(i);
-  ord.push_back(2);
-  ord.push_back(4);
-  ord.push_back(3);
-  ord.push_back(1);
+  for (unsigned i = 1; i <= Rule::getLengthOfRule(); ++i)
+    ord.push_back(i);
+  // ord.push_back(2);
+  // ord.push_back(4);
+  // ord.push_back(3);
+  // ord.push_back(1);
   Rule::setVariableOrder(ord);
 
   if (0 == rulelist->size())

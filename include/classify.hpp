@@ -49,6 +49,7 @@ void classifyViaRPSRBT(RPSRBT*, list<string>*&, list<Result>*);
 
 bool compareRuleAndPacket(Rule&, string&);
 unsigned sequentialSearch(list<Rule> *&, string&);
+unsigned rpsrbtSearch(RPSRBT*, string&);
 
 // bool compareRuleAndPacketForClassBench(ClassBenchRule&, string&);
 // unsigned sequentialSearchForClassBench(list<ClassBenchRule>&, string&);
