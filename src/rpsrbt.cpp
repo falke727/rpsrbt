@@ -105,16 +105,10 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
     makeBackboneRPSRBT(run);
   }
 
-  cout << "hoge1\n";
-
   connectT4ToTerminalNode();
-  cout << "hoge2\n";
   addPointers();
-  cout << "hoge3\n";
   checkReachableAndUpdateCandidate();
-  cout << "hoge4\n";
   makeTerminalNodes();
-  cout << "hoge5\n";
   nodeShareReduction();
   cout << "hoge6\n";
   directConnectReduction(roots[0]);
@@ -216,7 +210,6 @@ void RPSRBT::connectRootToRoot(RPSRBTNode* ptr) {
     ptr->setRight(roots[ptr->getTrieNumber()+1]);
 }
 
-//void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr) {
 void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, int i) {
   if (NULL == ptr || ptr->isTerm()) { return ; }
   if (i != ptr->getTrieNumber()) { return ; }
@@ -224,27 +217,6 @@ void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, int i) {
   traverseAndAddPointer(ptr->getRight(), i);
 
   lowTrieTraverseAndAddPointer(ptr);
-  // if (NULL == ptr->getLeft()) {
-  //   lowTrieTraverseAndAddPointer(ptr, false);
-  // }
-  // if (NULL == ptr->getRight()) {
-  //   lowTrieTraverseAndAddPointer(ptr, true);
-  // }
-
-  // if (NULL == ptr->getLeft()) {
-  //   lowTrieTraverseAndAddPointer(ptr, false);
-  // }
-  // else {
-  //   //traverseAndAddPointer(ptr->getLeft(), D);
-  //   traverseAndAddPointer(ptr->getLeft());
-  // }
-  // if (NULL == ptr->getRight()) {
-  //   lowTrieTraverseAndAddPointer(ptr, true);
-  // }
-  // else {
-  //   //traverseAndAddPointer(ptr->getRight(), D);
-  //   traverseAndAddPointer(ptr->getRight());
-  // }
 }
 
 void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* high) {
@@ -270,18 +242,16 @@ void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* high) {
 }
 
 void RPSRBT::checkReachableAndUpdateCandidate() {
-  unordered_set<RPSRBTNode*> D;
-  traverseForCheckReachableAndUpdateCandidate(roots[0], D);
+  for (auto ptr : roots)
+    traverseForCheckReachableAndUpdateCandidate(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
 }
 
-void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, unordered_set<RPSRBTNode*> D) {
+void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, int i) {
   if (NULL == ptr) { return ; }
-  auto it = D.find(ptr);
-  if (it != D.end()) { return ; }
-  D.insert(ptr);
+  if (i != ptr->getTrieNumber()) { return ; }
 
-  ptr->setReachTrue();
-
+  traverseForCheckReachableAndUpdateCandidate(ptr->getLeft(), i);
+  traverseForCheckReachableAndUpdateCandidate(ptr->getRight(), i);
   if (NULL != ptr->getLeft())
     if ((ptr->getLeft())->getCandidate() < ptr->getCandidate())
       ptr->updateCandidate((ptr->getLeft())->getCandidate());
@@ -289,20 +259,23 @@ void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, unorde
     if ((ptr->getRight())->getCandidate() < ptr->getCandidate())
       ptr->updateCandidate((ptr->getRight())->getCandidate());
 
-  traverseForCheckReachableAndUpdateCandidate(ptr->getLeft(), D);
-  traverseForCheckReachableAndUpdateCandidate(ptr->getRight(), D);
+  if (0 == ptr->getTrieNumber()) {
+    ptr->setReachTrue();
+  }
+  if (ptr->isReachable() && !ptr->isTerm()) {
+    (ptr->getLeft())->setReachTrue();
+    (ptr->getRight())->setReachTrue();
+  }
 }
 
 void RPSRBT::makeTerminalNodes() {
-  unordered_set<RPSRBTNode*> D;
-  traverseForMakeTerminalNodes(roots[0], D);
+  for (auto ptr : roots)
+    traverseForMakeTerminalNodes(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
 }
 
-void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, unordered_set<RPSRBTNode*> D) {
+void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, int i) {
   if (NULL == ptr || ptr->isTerm()) { return ; }
-  auto it = D.find(ptr);
-  if (it != D.end()) { return ; }
-  D.insert(ptr);
+  if (i != ptr->getTrieNumber()) { return ; }
 
   if (ptr->getRule() > 0) {
     if ((ptr->getLeft())->getCandidate() > ptr->getCandidate()) {
@@ -315,18 +288,23 @@ void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, unordered_set<RPSRBTN
     }
   }
   else {
-    traverseForMakeTerminalNodes(ptr->getLeft(), D);
-    traverseForMakeTerminalNodes(ptr->getRight(), D);
+    traverseForMakeTerminalNodes(ptr->getLeft(), i);
+    traverseForMakeTerminalNodes(ptr->getRight(), i);
   }
 }
 
 void RPSRBT::nodeShareReduction() {
   unordered_map<LRPair,RPSRBTNode*> D;
-  traverseForNodeShareReduction(roots[0], D);
+  for (auto ptr : roots)
+    traverseForNodeShareReduction(roots[ptr->getTrieNumber()], D, ptr->getTrieNumber());
+
 }
 
-void RPSRBT::traverseForNodeShareReduction(RPSRBTNode* ptr, unordered_map<LRPair, RPSRBTNode*> D) { 
+// This subroutine is incomplete.
+void RPSRBT::traverseForNodeShareReduction(RPSRBTNode* ptr, unordered_map<LRPair, RPSRBTNode*> D, int i) { 
   if (NULL == ptr || ptr->isTerm()) { return ; }
+  if (i != ptr->getTrieNumber()) { return ; }
+
   LRPair left_right;
   left_right.l = ptr->getLeft();
   left_right.r = ptr->getRight();
@@ -334,12 +312,11 @@ void RPSRBT::traverseForNodeShareReduction(RPSRBTNode* ptr, unordered_map<LRPair
   auto it = D.find(left_right);
   if(it != D.end()) { 
     cout << "Share!\n";
-    return ;
   }
-  D[left_right] = ptr;
+  D[left_right] = ptr;  
 
-  traverseForNodeShareReduction(ptr->getLeft(), D);
-  traverseForNodeShareReduction(ptr->getRight(), D);
+  traverseForNodeShareReduction(ptr->getLeft(), D, i);
+  traverseForNodeShareReduction(ptr->getRight(), D, i);
 }
 
 void RPSRBT::directConnectReduction(RPSRBTNode* ptr) {
@@ -362,11 +339,11 @@ void RPSRBT::directConnectReduction(RPSRBTNode* ptr) {
 }
 
 void RPSRBT::traverse() {
-  preOrder(roots[0]);
-  // for (auto ptr : roots) {
-  //   cout << "=========================" << endl;
-  //   preOrder2(ptr, ptr->getTrieNumber());
-  // }
+  // preOrder(roots[0]);
+  for (auto ptr : roots) {
+    cout << "=========================" << endl;
+    preOrder2(ptr, ptr->getTrieNumber());
+  }
 }
 
 void RPSRBT::preOrder(RPSRBTNode* ptr) {

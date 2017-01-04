@@ -118,16 +118,15 @@ public:
   void connectT4ToTerminalNode();
   void addPointers();
   void connectRootToRoot(RPSRBTNode*);
-  //void traverseAndAddPointer(RPSRBTNode*);
   void traverseAndAddPointer(RPSRBTNode*, int);
-  // void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
   void lowTrieTraverseAndAddPointer(RPSRBTNode*);
   void checkReachableAndUpdateCandidate();
-  void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, unordered_set<RPSRBTNode*>);
+  void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, int);
   void makeTerminalNodes();
-  void traverseForMakeTerminalNodes(RPSRBTNode*, unordered_set<RPSRBTNode*>);
+  void traverseForMakeTerminalNodes(RPSRBTNode*, int);
   void nodeShareReduction();
-  void traverseForNodeShareReduction(RPSRBTNode*, unordered_map<LRPair, RPSRBTNode*>);
+  void traverseForNodeShareReduction(RPSRBTNode*, unordered_map<LRPair, RPSRBTNode*>, int);
+  
   void directConnectReduction(RPSRBTNode*);
   RPSRBTNode* getRoot() { return roots[0]; }
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
