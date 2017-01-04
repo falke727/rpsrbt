@@ -40,6 +40,7 @@ private:
   // friend ostream& operator<<(ostream&, const RPSRBTNode&);
   unsigned _var;  // var of the terminal node is 0
   unsigned _rule; // if a node has Rule(Run) i then _rule = i
+  int _tn;        // Trie number T[tn]
   string _label;
   bool _term;     // mark whether terminal Rule 
                   // e.g the node of the run of Rule 1 must be terminal node
@@ -48,18 +49,21 @@ private:
   RPSRBTNode* _right;
 public:
   RPSRBTNode() { }
-  RPSRBTNode(unsigned &, string);
+  RPSRBTNode(unsigned &, int, string);
+  RPSRBTNode(unsigned &, int, string, bool);
   ~RPSRBTNode() { /* printf("call the RPSRBTNode deconstructor.\n"); */ }
-  void initRootNode(unsigned);
+  void initRootNode(unsigned, int);
   void initTerminalNode();
   void setTermTrue() { _term = true; }
   void setVar(unsigned v) { _var = v; }
   void setLeft(RPSRBTNode *l) { _left = l; }
   void setRight(RPSRBTNode *r) { _right = r; }
   void addRule(unsigned n) { _rule = n; }
+  bool isTerm() { return _term; }
   unsigned getVar() { return _var; }
   string getLabel() { return _label; }
   unsigned getRule() { return _rule; }
+  int getTrieNumber() { return _tn; }
   RPSRBTNode* getLeft() { return _left; }
   RPSRBTNode* getRight() { return _right; }
 };
@@ -79,7 +83,8 @@ public:
   void makeBackboneRPSRBT(SRun);
   void connectT4ToTerminalNode();
   void addPointers();
-  void traverseAndAddPointer(RPSRBTNode*, unsigned);
+  void traverseAndAddPointer(RPSRBTNode*);
+  void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
   void traverse();
   void preOrder(RPSRBTNode*);
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }

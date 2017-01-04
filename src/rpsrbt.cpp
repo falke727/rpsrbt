@@ -12,17 +12,28 @@ ostream& operator<<(ostream &strm, const SRun &run) {
   return strm << run._num << ": " << run._label << ", " << run._spos << endl;
 }
 
-RPSRBTNode::RPSRBTNode(unsigned &v, string l){
+RPSRBTNode::RPSRBTNode(unsigned &v, int tn, string l){
   _var = v;
   _rule = 0;
+  _tn = tn;
   _label = l;
   _left = _right = NULL;
   _term = false;
 }
 
-void RPSRBTNode::initRootNode(unsigned v) {
+RPSRBTNode::RPSRBTNode(unsigned &v, int tn, string l, bool t){
   _var = v;
   _rule = 0;
+  _tn = tn;
+  _label = l;
+  _left = _right = NULL;
+  _term = t;
+}
+
+void RPSRBTNode::initRootNode(unsigned v, int t) {
+  _var = v;
+  _rule = 0;
+  _tn = t;
   _label = "root";
   _term = false;
   _left = _right = NULL;
@@ -31,6 +42,7 @@ void RPSRBTNode::initRootNode(unsigned v) {
 void RPSRBTNode::initTerminalNode() {
   _var = 0;
   _rule = Rule::getNumberOfRule()+1;
+  _tn = -1;
   _label = "terminal";
   _term = true;
   _left = _right = NULL;
@@ -43,7 +55,7 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
 
   for (unsigned i = 0; i < w; ++i) {
     roots.push_back(new RPSRBTNode());
-    roots[i]->initRootNode(ord[i]);
+    roots[i]->initRootNode(ord[i], i);
   }
 
   for (auto r : rulelist) {
@@ -52,7 +64,7 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
   }
 
   connectT4ToTerminalNode();
-  addPointers();
+  //addPointers();
 }
 
 SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {
@@ -79,36 +91,35 @@ void RPSRBT::makeBackboneRPSRBT(SRun run) {
   unsigned s = run.getStartPosition()-1;
   vector<unsigned> ord = Rule::getVariableOrder();
 
-  cout << s << ": " << label << endl;
+  // cout << s << ": " << label << endl;
   RPSRBTNode* ptr = roots[s];
-  
-  for (unsigned i = s, j = 1; i < s+l-1; ++i, ++j) {
+
+  for (unsigned i = 0; i < l-1; ++i) {
     if ('0' == label[i]) {
       if (NULL == ptr->getLeft()) {
-	ptr->setLeft(new RPSRBTNode(ord[i+1],label.substr(0,j)));
+	ptr->setLeft(new RPSRBTNode(ord[s+i+1],s,label.substr(0,i+1)));
 	RPSRBT::incNumOfNode();
       }
       ptr = ptr->getLeft();
     }
     else {
       if (NULL == ptr->getRight()) {
-	ptr->setRight(new RPSRBTNode(ord[i+1],label.substr(0,j)));
+	ptr->setRight(new RPSRBTNode(ord[s+i+1],s,label.substr(0,i+1)));
 	RPSRBT::incNumOfNode();
       }
       ptr = ptr->getRight();
     }
   }
+  //RPSRBTNode* tmp = ptr;
 
   /* make the last node of this run */
   unsigned zero = 0;
-  if ('0' == label[s+l-1]) {
+  if ('0' == label[l-1]) {
     if (NULL == ptr->getLeft()) {
       if (l == Rule::getLengthOfRule()-s) {
-	ptr->setLeft(new RPSRBTNode(zero,label));
+	ptr->setLeft(new RPSRBTNode(zero,s,label, true));
       }
-      else {
-	ptr->setLeft(new RPSRBTNode(ord[s+l],label));
-      }
+      else { ptr->setLeft(new RPSRBTNode(ord[s+l],s,label)); }
       RPSRBT::incNumOfNode();
     }
     ptr = ptr->getLeft();
@@ -116,11 +127,8 @@ void RPSRBT::makeBackboneRPSRBT(SRun run) {
   else {
     if (NULL == ptr->getRight()) {
       if (l == Rule::getLengthOfRule()-s) {
-	ptr->setRight(new RPSRBTNode(zero,label));
-      }
-      else {
-	ptr->setRight(new RPSRBTNode(ord[s+l],label));
-      }
+	ptr->setRight(new RPSRBTNode(zero,s,label, true));
+      } else { ptr->setRight(new RPSRBTNode(ord[s+l],s,label)); }
       RPSRBT::incNumOfNode();
     }
     ptr = ptr->getRight();
@@ -138,29 +146,49 @@ void RPSRBT::connectT4ToTerminalNode() {
 
 void RPSRBT::addPointers() {
   unsigned w = roots.size();
-  for (int i = w-2; 0 <= i; --i)
-    ; //traverseAndAddPointer(roots[i], w-i);
+  for (int i = w-2; 0 <= i; --i) {
+    cout << "=========================" << endl;
+    traverseAndAddPointer(roots[i]);
+  }
 }
 
-void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, unsigned i) {
+void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr) {
+  if (NULL == ptr || ptr->isTerm()) { return ; }
+  if (NULL == ptr->getLeft()) {
+    if ("root" == ptr->getLabel()) {
+      ptr->setLeft(roots[ptr->getTrieNumber()+1]);
+    }
+    else {
+      lowTrieTraverseAndAddPointer(ptr, false);
+    }
+  }
+  if (NULL == ptr->getRight()) {
+    if ("root" == ptr->getLabel()) {
+      ptr->setRight(roots[ptr->getTrieNumber()+1]);
+    }
+    else {
+      lowTrieTraverseAndAddPointer(ptr, true);
+    }
+  }
+  traverseAndAddPointer(ptr->getLeft());
+  traverseAndAddPointer(ptr->getRight());
+}
 
-  if (NULL == ptr) { return ; }
-
-  if (NULL == ptr->getLeft())
-    ; //printf("hoge\n");
-  if (NULL == ptr->getRight())
-    ; // printf("hoge\n");
+// if d = false then Left, d = true then Right
+void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* ptr, bool d) {
+  cout << ptr->getTrieNumber()+1 << "," << ptr->getLabel() << " --> " << d << endl;
 }
 
 void RPSRBT::traverse() {
   for (auto ptr : roots) {
+    cout << "=========================" << endl;
     preOrder(ptr);
   }
 }
 
 void RPSRBT::preOrder(RPSRBTNode* ptr) {
   if (NULL == ptr) { return ; }
-  cout << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << endl;
+  cout << "[" << ptr->getTrieNumber()+1 << "] " << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << ", term = " << ptr->isTerm() << endl;
   preOrder(ptr->getLeft());
   preOrder(ptr->getRight());
 }
