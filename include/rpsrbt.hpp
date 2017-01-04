@@ -117,8 +117,11 @@ public:
   void makeBackboneRPSRBT(SRun);
   void connectT4ToTerminalNode();
   void addPointers();
-  void traverseAndAddPointer(RPSRBTNode*);
-  void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
+  void connectRootToRoot(RPSRBTNode*);
+  //void traverseAndAddPointer(RPSRBTNode*);
+  void traverseAndAddPointer(RPSRBTNode*, int);
+  // void lowTrieTraverseAndAddPointer(RPSRBTNode*, bool);
+  void lowTrieTraverseAndAddPointer(RPSRBTNode*);
   void checkReachableAndUpdateCandidate();
   void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, unordered_set<RPSRBTNode*>);
   void makeTerminalNodes();

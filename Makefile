@@ -3,8 +3,8 @@ VPATH = src include
 CPPFLAGS = -I include
 #INCLUDE = -I include
 
-#CXX = g++ -O3 -Wall -Wextra -pedantic -std=c++0x -lm  # O は最適化用 
-CXX = g++ -g3 -Wall -Wextra -pedantic -std=c++0x -lm 
+CXX = g++ -O3 -Wall -Wextra -pedantic -std=c++0x -lm  # O は最適化用 
+#CXX = g++ -g3 -Wall -Wextra -pedantic -std=c++0x -lm 
 
 rbtrie: main.o openfile.o rpsrbt.o classify.o
 #rbtrie: rbtrie.o openfile.o trie.o classify.o check.o measure.o
