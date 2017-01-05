@@ -4,7 +4,7 @@ int main(int argc, char* argv[])
 {
   list<Rule> *rulelist = new list<Rule>;
   list<string> *packets = new list<string>;
-  RPSRBT *rpsrbt;
+  RPSRBT *rpsrbt = NULL;
   bool classbench_flag = false;
 
   /* check arguments */
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
     /* make a Reduced Pointed Single-Run-Based Trie */
     rpsrbt = new RPSRBT(*rulelist);
-    rpsrbt->traverse();
+    // rpsrbt->traverse();
 
   } else {
     printf("Usage: main <rule list> <pseudo packets>\n");

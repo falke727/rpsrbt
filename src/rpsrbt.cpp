@@ -6,6 +6,7 @@ SRun::SRun(string l, unsigned n, unsigned p) {
   _label = l;
   _num = n;
   _spos = p;
+  _term = false;
 }
 
 ostream& operator<<(ostream &strm, const SRun &run) {
@@ -110,12 +111,11 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
   checkReachableAndUpdateCandidate();
   makeTerminalNodes();
   nodeShareReduction();
-  cout << "hoge6\n";
-  directConnectReduction(roots[0]);
+  directConnectReduction();
 }
 
 SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {
-  unsigned i = 1, start;
+  unsigned i = 1, start = 1;
   string r = "";
   bool b = false;
   string s = rule.getRuleBitString();
@@ -243,7 +243,7 @@ void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* high) {
 
 void RPSRBT::checkReachableAndUpdateCandidate() {
   for (auto ptr : roots)
-    traverseForCheckReachableAndUpdateCandidate(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
+    traverseForCheckReachableAndUpdateCandidate(ptr, ptr->getTrieNumber());
 }
 
 void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, int i) {
@@ -270,7 +270,7 @@ void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, int i)
 
 void RPSRBT::makeTerminalNodes() {
   for (auto ptr : roots)
-    traverseForMakeTerminalNodes(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
+    traverseForMakeTerminalNodes(ptr, ptr->getTrieNumber());
 }
 
 void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, int i) {
@@ -296,7 +296,7 @@ void RPSRBT::traverseForMakeTerminalNodes(RPSRBTNode* ptr, int i) {
 void RPSRBT::nodeShareReduction() {
   unordered_map<LRPair,RPSRBTNode*> D;
   for (auto ptr : roots)
-    traverseForNodeShareReduction(roots[ptr->getTrieNumber()], D, ptr->getTrieNumber());
+    traverseForNodeShareReduction(ptr, D, ptr->getTrieNumber());
 
 }
 
@@ -319,15 +319,21 @@ void RPSRBT::traverseForNodeShareReduction(RPSRBTNode* ptr, unordered_map<LRPair
   traverseForNodeShareReduction(ptr->getRight(), D, i);
 }
 
-void RPSRBT::directConnectReduction(RPSRBTNode* ptr) {
+void RPSRBT::directConnectReduction() {
+  for (auto ptr : roots)
+    traverseForDirectConnectReduction(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
+}
+
+void RPSRBT::traverseForDirectConnectReduction(RPSRBTNode* ptr, int i) {
   if (NULL == ptr || ptr->isTerm()) { return ; }
+  if (i != ptr->getTrieNumber()) { return ; }
 
-  directConnectReduction(ptr->getLeft());
-  directConnectReduction(ptr->getRight());
-
+  traverseForDirectConnectReduction(ptr->getLeft(), i);
+  traverseForDirectConnectReduction(ptr->getRight(), i);
   RPSRBTNode *left, *right;
   left = ptr->getLeft(), right = ptr->getRight();
   if (left == right) {
+    // cout << "Direct Connect!!\n";
     list<RPSRBTNode*> parents = ptr->getParents();
     for (auto p : parents) {
       if(p->getLeft() == ptr)
@@ -336,6 +342,7 @@ void RPSRBT::directConnectReduction(RPSRBTNode* ptr) {
 	p->setRight(right);
     }
   }
+
 }
 
 void RPSRBT::traverse() {
