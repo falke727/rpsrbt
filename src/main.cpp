@@ -66,8 +66,14 @@ int main(int argc, char* argv[])
 
   // assert(0 == checkClassifyResult(resultOfSequential, results));
 
+  // for (auto i : *rulelist)
+  //   if (i.getRuleNumber() == 114)
+  //     cout << i.getRuleBitString() << endl;
+
   /* delete dynamicaly allocated memories */
   delete packets;
+  // delete rulelist
+  // delete rpsrbt;
   // delete resultOfSequential;
 
   return 0;

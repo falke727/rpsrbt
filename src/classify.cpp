@@ -48,9 +48,6 @@ unsigned rpsrbtSearch(RPSRBT* rpsrbt, string& packet) {
 
 void classifyViaSequentialSearch(list<Rule>*& rulelist, list<string>*& packets, list<Result>* results)
 {
-  list<string>::iterator pIt, pEnd;
-  pIt = packets->begin(), pEnd = packets->end();
-
   struct timeval startTime, endTime;
   double sec_timeOfDay;
   unsigned result;
@@ -58,11 +55,10 @@ void classifyViaSequentialSearch(list<Rule>*& rulelist, list<string>*& packets, 
   Result::initCompareNumberOfSequential();
   gettimeofday(&startTime, NULL);
 
-  while (pIt != pEnd) {
-    result = sequentialSearch(rulelist, *pIt);
-    Result r(*pIt, result);
+  for (auto it : *packets) {
+    result = sequentialSearch(rulelist, it);
+    Result r(it, result);
     results->push_back(r);
-    ++pIt;
   }
 
   gettimeofday(&endTime, NULL);
@@ -76,6 +72,7 @@ bool compareRuleAndPacket(Rule& rule, string& packet)
   string ruleBitString = rule.getRuleBitString();
   unsigned l = ruleBitString.size();
   unsigned i = 0;
+
   while (i < l) {
     Result::incCompareNumberOfSequential();
     if (ruleBitString[i] != '*' && ruleBitString[i] != packet[i])
@@ -87,15 +84,11 @@ bool compareRuleAndPacket(Rule& rule, string& packet)
 
 unsigned sequentialSearch(list<Rule>*& rulelist, string& packet)
 {
-  list<Rule>::iterator ruleIt = rulelist->begin();
-  list<Rule>::iterator ruleItEnd = rulelist->end();
-
-  while (ruleIt != ruleItEnd) {
-    if (compareRuleAndPacket(*ruleIt, packet)) {
-      cout << packet << " --> " << ruleIt->getRuleNumber() << endl;
-      return ruleIt->getRuleNumber();
+  for (auto it : *rulelist) {
+    if (compareRuleAndPacket(it, packet)) {
+      cout << packet << " --> " << it.getRuleNumber() << endl;
+      return it.getRuleNumber();
     }
-    ++ruleIt;
   }
 
   cout << packet << " --> " << rulelist->size()+1 << endl;

@@ -47,7 +47,7 @@ private:
                   // e.g the node of the run of Rule 1 must be terminal node
   // list<RPSRBTNode*>* _parents;
   bool _reach;    // Whether is this node reachble from the root of RPSRBT[0]
-  list<RPSRBTNode*> _parents;
+  unordered_set<RPSRBTNode*> _parents;
   RPSRBTNode* _left;
   RPSRBTNode* _right;
 public:
@@ -60,14 +60,15 @@ public:
   void initRootNode(unsigned, int);
   void initTerminalNode();
   void setTermTrue() { _term = true; }
+  void setReachFalse() { _reach = false; }
   void setReachTrue() { _reach = true; }
   void setVar(unsigned v) { _var = v; }
   void setLeft(RPSRBTNode *l) { _left = l; }
   void setRight(RPSRBTNode *r) { _right = r; }
   void addRule(unsigned n) { _rule = n; }
-  void addParent(RPSRBTNode *p) { _parents.push_back(p); }
+  void addParent(RPSRBTNode *p) { _parents.insert(p); }
   void updateCandidate(unsigned c) { _candidate = c; }
-  void deleteParent(RPSRBTNode *p) { _parents.remove(p); }
+  void deleteParent(RPSRBTNode *p) { _parents.erase(p); }
   bool isTerm() { return _term; }
   bool isReachable() { return _reach; }
   unsigned getVar() { return _var; }
@@ -77,7 +78,7 @@ public:
   unsigned getCandidate() { return _candidate; }
   RPSRBTNode* getLeft() { return _left; }
   RPSRBTNode* getRight() { return _right; }
-  list<RPSRBTNode*> getParents() { return _parents; }
+  unordered_set<RPSRBTNode*> getParents() { return _parents; }
 };
 
 struct LRPair {

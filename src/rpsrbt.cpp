@@ -31,7 +31,7 @@ RPSRBTNode::RPSRBTNode(unsigned &v, int tn, unsigned c, string l, RPSRBTNode* p)
   _candidate = c;
   _label = l;
   _reach = false;
-  _parents.push_back(p);
+  _parents.insert(p);
   // if (NULL == _parents) {
   //   cout << "[" << tn << "] -- p: " << p->getLabel() << " c: " << _label << endl;
   //   _parents = new list<RPSRBTNode*>;
@@ -58,7 +58,7 @@ RPSRBTNode::RPSRBTNode(unsigned &v, int tn, unsigned c, string l, bool t, RPSRBT
   _candidate = c;
   _label = l;
   _reach = false;
-  _parents.push_back(p);
+  _parents.insert(p);
   // if (NULL == _parents) {
   //   cout << "[" << tn << "] -- p: " << p->getLabel() << " c: " << _label << endl;
   //   _parents = new list<RPSRBTNode*>;
@@ -204,10 +204,14 @@ void RPSRBT::addPointers() {
 }
 
 void RPSRBT::connectRootToRoot(RPSRBTNode* ptr) {
-  if (NULL == ptr->getLeft())
+  if (NULL == ptr->getLeft()) {
     ptr->setLeft(roots[ptr->getTrieNumber()+1]);
-  if (NULL == ptr->getRight())
+    roots[ptr->getTrieNumber()+1]->addParent(ptr);
+  }
+  if (NULL == ptr->getRight()) {
     ptr->setRight(roots[ptr->getTrieNumber()+1]);
+    roots[ptr->getTrieNumber()+1]->addParent(ptr);
+  }
 }
 
 void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, int i) {
@@ -320,27 +324,35 @@ void RPSRBT::traverseForNodeShareReduction(RPSRBTNode* ptr, unordered_map<LRPair
 }
 
 void RPSRBT::directConnectReduction() {
-  for (auto ptr : roots)
-    traverseForDirectConnectReduction(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
+  for (auto ptr = roots.rbegin(); ptr != roots.rend(); ++ptr)
+    traverseForDirectConnectReduction(roots[(*ptr)->getTrieNumber()], (*ptr)->getTrieNumber());
+  // for (auto ptr : roots)
+  //   traverseForDirectConnectReduction(roots[ptr->getTrieNumber()], ptr->getTrieNumber());
 }
 
 void RPSRBT::traverseForDirectConnectReduction(RPSRBTNode* ptr, int i) {
   if (NULL == ptr || ptr->isTerm()) { return ; }
   if (i != ptr->getTrieNumber()) { return ; }
+  if (i == 0 && "root" == ptr->getLabel()) { return ; }
+  if (ptr->getRule() > 0) { return ; }
 
   traverseForDirectConnectReduction(ptr->getLeft(), i);
   traverseForDirectConnectReduction(ptr->getRight(), i);
+
   RPSRBTNode *left, *right;
   left = ptr->getLeft(), right = ptr->getRight();
+  
   if (left == right) {
     // cout << "Direct Connect!!\n";
-    list<RPSRBTNode*> parents = ptr->getParents();
+    unordered_set<RPSRBTNode*> parents = ptr->getParents();
     for (auto p : parents) {
       if(p->getLeft() == ptr)
 	p->setLeft(left);
       if(p->getRight() == ptr)
 	p->setRight(right);
     }
+    ptr->setReachFalse();
+    //cout << "[" << ptr->getTrieNumber()+1 << "] " << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << ", term = " << ptr->isTerm() << ", candidate = " << ptr->getCandidate() << ", reachable = " << ptr->isReachable() << endl;
   }
 
 }
@@ -348,7 +360,7 @@ void RPSRBT::traverseForDirectConnectReduction(RPSRBTNode* ptr, int i) {
 void RPSRBT::traverse() {
   // preOrder(roots[0]);
   for (auto ptr : roots) {
-    cout << "=========================" << endl;
+    cout << "================================[" << ptr->getTrieNumber()+1 << "]=================================" << endl;
     preOrder2(ptr, ptr->getTrieNumber());
   }
 }
@@ -362,7 +374,8 @@ void RPSRBT::preOrder(RPSRBTNode* ptr) {
 
 void RPSRBT::preOrder2(RPSRBTNode* ptr, int i) {
   if (NULL == ptr) { return ; }
-  cout << "[" << ptr->getTrieNumber()+1 << "] " << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << ", term = " << ptr->isTerm() << ", candidate = " << ptr->getCandidate() << ", reachable = " << ptr->isReachable() << endl;
+  if (ptr->isReachable())
+    cout << "[" << ptr->getTrieNumber()+1 << "] " << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << ", term = " << ptr->isTerm() << ", candidate = " << ptr->getCandidate() << ", reachable = " << ptr->isReachable() << endl;
   if (i != ptr->getTrieNumber()) { return ; }
   preOrder2(ptr->getLeft(), i);
   preOrder2(ptr->getRight(), i);
