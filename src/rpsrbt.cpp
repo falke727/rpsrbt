@@ -107,7 +107,7 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
   }
 
   connectT4ToTerminalNode();
-  addPointers();
+  addPointersAndRules();
   checkReachableAndUpdateCandidate();
   makeTerminalNodes();
   nodeShareReduction();
@@ -187,11 +187,17 @@ void RPSRBT::connectT4ToTerminalNode() {
   terminal = new RPSRBTNode();
   terminal->initTerminalNode();
   unsigned w = Rule::getLengthOfRule();
-  if (NULL == roots[w-1]->getLeft()) { roots[w-1]->setLeft(terminal); }
-  if (NULL == roots[w-1]->getRight()) { roots[w-1]->setRight(terminal); }
+  if (NULL == roots[w-1]->getLeft()) {
+    roots[w-1]->setLeft(terminal); 
+    terminal->addParent(roots[w-1]);
+  }
+  if (NULL == roots[w-1]->getRight()) { 
+    roots[w-1]->setRight(terminal);
+    terminal->addParent(roots[w-1]);
+  }
 }
 
-void RPSRBT::addPointers() {
+void RPSRBT::addPointersAndRules() {
   unsigned w = roots.size();
 
   for (unsigned i = 0; i < w-1; ++i)
@@ -199,7 +205,7 @@ void RPSRBT::addPointers() {
 
   for (int i = w-2; 0 <= i; --i) {
     // cout << "========== " << i << " ==========" << endl;
-    traverseAndAddPointer(roots[i], roots[i]->getTrieNumber());
+    traverseAndAddPointerAndRule(roots[i], roots[i]->getTrieNumber());
   }
 }
 
@@ -214,17 +220,17 @@ void RPSRBT::connectRootToRoot(RPSRBTNode* ptr) {
   }
 }
 
-void RPSRBT::traverseAndAddPointer(RPSRBTNode* ptr, int i) {
+void RPSRBT::traverseAndAddPointerAndRule(RPSRBTNode* ptr, int i) {
   if (NULL == ptr || ptr->isTerm()) { return ; }
   if (i != ptr->getTrieNumber()) { return ; }
-  traverseAndAddPointer(ptr->getLeft(), i);
-  traverseAndAddPointer(ptr->getRight(), i);
+  traverseAndAddPointerAndRule(ptr->getLeft(), i);
+  traverseAndAddPointerAndRule(ptr->getRight(), i);
 
-  lowTrieTraverseAndAddPointer(ptr);
+  lowTrieTraverseAndAddPointerAndRule(ptr);
 }
 
-void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* high) {
-  //cout << high->getTrieNumber()+1 << "," << high->getLabel() << endl;
+void RPSRBT::lowTrieTraverseAndAddPointerAndRule(RPSRBTNode* high) {
+  // cout << high->getTrieNumber()+1 << "," << high->getLabel() << endl;
   string label = high->getLabel();
   RPSRBTNode* low;
   unsigned j = 1, l;
@@ -236,10 +242,22 @@ void RPSRBT::lowTrieTraverseAndAddPointer(RPSRBTNode* high) {
       else { break ; }
     }
     if (l == label.size()) {
-      if (NULL == high->getLeft())
-	high->setLeft(low->getLeft());
-      if (NULL == high->getRight())
-	high->setRight(low->getRight());
+      if (!high->isTerm()) {
+	if (NULL == high->getLeft()) {
+	  // cout << "L : high[" << high->getTrieNumber()+1 << "] - " << high->getLabel() << endl;
+	  // cout << "L : low[" << low->getTrieNumber()+1 << "] - " << low->getLabel() << endl;
+	  high->setLeft(low->getLeft());
+	  (low->getLeft())->addParent(high);
+	}
+	if (NULL == high->getRight()) {
+	  // cout << "R : high[" << high->getTrieNumber()+1 << "] - " << high->getLabel() << endl;
+	  // cout << "R : low[" << low->getTrieNumber()+1 << "] - " << low->getLabel() << endl;
+	  high->setRight(low->getRight());
+	  (low->getRight())->addParent(high);
+	}
+      }
+      if (low->getRule() > 0) // Is this condition ok?
+	high->addRule(low->getRule());
       break;
     }
   }
@@ -252,10 +270,7 @@ void RPSRBT::checkReachableAndUpdateCandidate() {
 
 void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, int i) {
   if (NULL == ptr) { return ; }
-  if (i != ptr->getTrieNumber()) { return ; }
 
-  traverseForCheckReachableAndUpdateCandidate(ptr->getLeft(), i);
-  traverseForCheckReachableAndUpdateCandidate(ptr->getRight(), i);
   if (NULL != ptr->getLeft())
     if ((ptr->getLeft())->getCandidate() < ptr->getCandidate())
       ptr->updateCandidate((ptr->getLeft())->getCandidate());
@@ -266,10 +281,16 @@ void RPSRBT::traverseForCheckReachableAndUpdateCandidate(RPSRBTNode* ptr, int i)
   if (0 == ptr->getTrieNumber()) {
     ptr->setReachTrue();
   }
+
   if (ptr->isReachable() && !ptr->isTerm()) {
     (ptr->getLeft())->setReachTrue();
     (ptr->getRight())->setReachTrue();
   }
+
+  if (i != ptr->getTrieNumber()) { return ; }
+
+  traverseForCheckReachableAndUpdateCandidate(ptr->getLeft(), i);
+  traverseForCheckReachableAndUpdateCandidate(ptr->getRight(), i);
 }
 
 void RPSRBT::makeTerminalNodes() {
@@ -374,9 +395,10 @@ void RPSRBT::preOrder(RPSRBTNode* ptr) {
 
 void RPSRBT::preOrder2(RPSRBTNode* ptr, int i) {
   if (NULL == ptr) { return ; }
+  if (i != ptr->getTrieNumber()) { return ; }
+
   if (ptr->isReachable())
     cout << "[" << ptr->getTrieNumber()+1 << "] " << ptr->getVar() << ", " << ptr->getLabel() << ", " << ptr->getRule() << ", term = " << ptr->isTerm() << ", candidate = " << ptr->getCandidate() << ", reachable = " << ptr->isReachable() << endl;
-  if (i != ptr->getTrieNumber()) { return ; }
   preOrder2(ptr->getLeft(), i);
   preOrder2(ptr->getRight(), i);
 }

@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   // assert(0 == checkClassifyResult(resultOfSequential, results));
 
   // for (auto i : *rulelist)
-  //   if (i.getRuleNumber() == 114)
+  //   if (i.getRuleNumber() == 69)
   //     cout << i.getRuleBitString() << endl;
 
   /* delete dynamicaly allocated memories */

@@ -117,10 +117,10 @@ public:
   SRun cutOutSingleRunFromRule(Rule&);
   void makeBackboneRPSRBT(SRun);
   void connectT4ToTerminalNode();
-  void addPointers();
+  void addPointersAndRules();
   void connectRootToRoot(RPSRBTNode*);
-  void traverseAndAddPointer(RPSRBTNode*, int);
-  void lowTrieTraverseAndAddPointer(RPSRBTNode*);
+  void traverseAndAddPointerAndRule(RPSRBTNode*, int);
+  void lowTrieTraverseAndAddPointerAndRule(RPSRBTNode*);
   void checkReachableAndUpdateCandidate();
   void traverseForCheckReachableAndUpdateCandidate(RPSRBTNode*, int);
   void makeTerminalNodes();
