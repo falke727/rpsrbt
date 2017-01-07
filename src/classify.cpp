@@ -41,7 +41,7 @@ unsigned rpsrbtSearch(RPSRBT* rpsrbt, string& packet) {
   if (ptr->getRule() < candidate)
     candidate = ptr->getRule(), Result::incCompareNumberOfRPSRBT();
 
-  cout << packet << " --> " << candidate << endl;
+  // cout << packet << " --> " << candidate << endl;
 
   return candidate;
 }
@@ -86,13 +86,12 @@ unsigned sequentialSearch(list<Rule>*& rulelist, string& packet)
 {
   for (auto it : *rulelist) {
     if (compareRuleAndPacket(it, packet)) {
-      cout << packet << " --> " << it.getRuleNumber() << endl;
+      // cout << packet << " --> " << it.getRuleNumber() << endl;
       return it.getRuleNumber();
     }
   }
 
-  cout << packet << " --> " << rulelist->size()+1 << endl;
-	
+  // cout << packet << " --> " << rulelist->size()+1 << endl;
   return rulelist->size()+1;
 }
 

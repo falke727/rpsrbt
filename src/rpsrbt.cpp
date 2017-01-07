@@ -256,7 +256,7 @@ void RPSRBT::lowTrieTraverseAndAddPointerAndRule(RPSRBTNode* high) {
 	  (low->getRight())->addParent(high);
 	}
       }
-      if (low->getRule() > 0) // Is this condition ok?
+      if (low->getRule() > 0 && 0 == high->getRule()) // Is this condition ok?
 	high->addRule(low->getRule());
       break;
     }
