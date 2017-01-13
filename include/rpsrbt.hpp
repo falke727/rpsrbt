@@ -7,6 +7,10 @@
 #include <openfile.hpp>
 #endif
 
+#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 //#include <bits/stdc++.h>
 #include <vector>
 #include <cmath>
@@ -105,6 +109,7 @@ namespace std {
 
 class RPSRBT {
 private:
+  static double _construct_time_of_rpsrbt;
   vector<RPSRBTNode*> roots;
   RPSRBTNode* terminal; // terminal node which var is n+1 
   static long unsigned _number_of_node_of_rpsrbt;
@@ -132,6 +137,8 @@ public:
   void traverseForDirectConnectReduction(RPSRBTNode*, int);
   RPSRBTNode* getRoot() { return roots[0]; }
   static void incNumOfNode() { ++_number_of_node_of_rpsrbt; }
+  static void setConstructTimeRPSRBT(double t) { _construct_time_of_rpsrbt = t; }
+  static double getConstructTimeRPSRBT() { return _construct_time_of_rpsrbt; }
   /* functions for debug */
   void traverse();
   void preOrder(RPSRBTNode*);

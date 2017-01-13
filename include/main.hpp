@@ -20,6 +20,7 @@
 // #include <measure.hpp>
 // #endif
 
+double RPSRBT::_construct_time_of_rpsrbt;
 long unsigned Result::_compareNumberOfSequential = 0;
 long unsigned Result::_compareNumberOfRPSRBT = 0;
 double Result::_latency_of_sequential = 0;
