@@ -5,24 +5,23 @@
 void classifyViaRPSRBT(RPSRBT* rpsrbt, list<string>*& packets, list<Result>* results) {
   list<string>::iterator pIt, pEnd;
   pIt = packets->begin(), pEnd = packets->end();
-  struct timeval startTime, endTime;
-  double sec_timeOfDay;
   unsigned result;
 
   Result::initCompareNumberOfRPSRBT();
-  gettimeofday(&startTime, NULL);
+  chrono::system_clock::time_point s;
+  chrono::system_clock::time_point e;
+  double t;
 
+  s = chrono::system_clock::now();
   while (pIt != pEnd) {
     result = rpsrbtSearch(rpsrbt, *pIt);
     Result r(*pIt, result);
     results->push_back(r);
     ++pIt;
   }
-
-  gettimeofday(&endTime, NULL);
-  sec_timeOfDay = (endTime.tv_sec - startTime.tv_sec)
-    + (endTime.tv_usec - startTime.tv_usec) / 1000000.0;
-  Result::setLatencyRPSRBT(sec_timeOfDay);
+  e = chrono::system_clock::now();
+  t = chrono::duration_cast<chrono::nanoseconds>(e-s).count()/1e9;
+  Result::setLatencyRPSRBT(t);
 }
 
 unsigned rpsrbtSearch(RPSRBT* rpsrbt, string& packet) {
@@ -30,6 +29,7 @@ unsigned rpsrbtSearch(RPSRBT* rpsrbt, string& packet) {
   unsigned candidate = Rule::getNumberOfRule()+1;
 
   while (!ptr->isTerm()) {
+    Result::incCompareNumberOfRPSRBT();
     if ('0' == packet[ptr->getVar()-1])
       ptr = ptr->getLeft(), Result::incCompareNumberOfRPSRBT();
     else

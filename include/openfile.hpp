@@ -33,7 +33,8 @@ public:
   static void setLengthOfRule(unsigned l) { _length_of_rule = l; }
   static unsigned getLengthOfRule() { return _length_of_rule; }
   static unsigned getNumberOfRule() { return _number_of_rule; }
-  static void decNumberOfRule() { --_number_of_rule; }
+  // static void decNumberOfRule() { --_number_of_rule; }
+  static void resetNumberOfRule(unsigned n) { _number_of_rule = n; }
   static void setVariableOrder(vector<unsigned>);
   static vector<unsigned> getVariableOrder() { return _variable_order; }
   void setRuleNumber(unsigned i) { _ruleNumber = i; }
@@ -41,7 +42,7 @@ public:
 };
 
 bool isIncluded(string, string);
-void deleteIncludedRules(list<Rule>*);
+void deleteIncludedRules(list<Rule>*, list<Rule>*);
 void readPackets(char*&, list<string> *) throw (string);
 void readRulelist(char*&, list<Rule> *) throw (string);
 

@@ -14,57 +14,43 @@ bool isIncluded(string rule1, string rule2)
   return true;
 }
 
-void deleteIncludedRules(list<Rule> *rulelist) 
+void deleteIncludedRules(list<Rule> *orulelist, list<Rule> *rulelist) 
 {
-  list<Rule>::iterator ruleIt = rulelist->begin();
+  list<Rule>::iterator ruleIt = orulelist->begin();
   list<Rule>::iterator ruleIt2;
-  list<Rule>::iterator ruleItEnd = rulelist->end();
+  list<Rule>::iterator ruleItEnd = orulelist->end();
   string rule1,rule2;
 	
   vector<bool> A;
-  unsigned i, j, n = rulelist->size();
+  unsigned i, j, n = orulelist->size();
   for (i = 0; i < n; ++i)
-    A.push_back(false);
+    A.push_back(true);
 
-  i = 0;
   while (ruleIt != ruleItEnd) {
-    ruleIt2 = ruleIt;
-    ruleIt2++;
-    j = i+1;
-    rule1 = ruleIt->getRuleBitString();
-    while (ruleIt2 != ruleItEnd) {
-      rule2 = ruleIt2->getRuleBitString();
-      if (isIncluded(rule1,rule2))
-	A[j] = true;
-      ++ruleIt2;
+    if (A[ruleIt->getRuleNumber()-1]) {
+      ruleIt2 = ruleIt;
+      ruleIt2++;
+      rule1 = ruleIt->getRuleBitString();
+      while (ruleIt2 != ruleItEnd) {
+	rule2 = ruleIt2->getRuleBitString();
+	if (isIncluded(rule1,rule2))
+	  A[ruleIt2->getRuleNumber()-1] = false;
+	++ruleIt2;
+      }
+    }
+    ++ruleIt;
+  }
+
+  i = 0, j = 1;
+  for (auto it : *orulelist) {
+    if (A[i]) {
+      Rule* r = new Rule(j, it.getRuleBitString());
+      rulelist->push_back(*r);
       ++j;
     }
-    ++ruleIt;
     ++i;
   }
-
-  ruleIt = rulelist->begin();
-  i = 0;
-  while (ruleIt != ruleItEnd) {
-    if (A[i]) {
-      // cout << ruleIt->getRuleBitString() << " !!!" << endl;
-      ruleIt = rulelist->erase(ruleIt);
-      Rule::decNumberOfRule();
-      ++i;
-      continue;
-    }
-    ++ruleIt;
-    ++i;
-  }
-	
-  ruleIt = rulelist->begin();
-  i = 1;
-  while (ruleIt != ruleItEnd) {
-    ruleIt->setRuleNumber(i);
-    // cout << ruleIt->getRuleNumber() << ' ' << ruleIt->getRuleBitString() << endl;
-    ++ruleIt;
-    ++i;
-  }
+  Rule::resetNumberOfRule(rulelist->size());
 }
 
 void readPackets(char *&filename, list<string>* packets) throw (string)

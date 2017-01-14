@@ -92,10 +92,8 @@ void RPSRBTNode::initTerminalNode() {
 }
 
 RPSRBT::RPSRBT(list<Rule> &rulelist) {
-  struct timeval startTime, endTime;
-  double sec_timeOfDay;
-  gettimeofday(&startTime, NULL);
 
+  // auto start = system_clock::now();
   unsigned w = Rule::getLengthOfRule();
   vector<unsigned> ord = Rule::getVariableOrder();
 
@@ -113,14 +111,12 @@ RPSRBT::RPSRBT(list<Rule> &rulelist) {
   addPointersAndRules();
   checkReachableAndUpdateCandidate();
   makeTerminalNodes();
-  nodeShareReduction();
+  // nodeShareReduction();
   directConnectReduction();
-
-  gettimeofday(&endTime, NULL);
-  sec_timeOfDay = (endTime.tv_sec - startTime.tv_sec)
-    + (endTime.tv_usec - startTime.tv_usec) / 1000000.0;
-  setConstructTimeRPSRBT(sec_timeOfDay);
-
+  // auto end = system_clock::now();
+  // auto dur = end - start;
+  // auto sec = duration_cast<std::chrono::microseconds>(dur).count();
+  // cout << sec / (pow(10,6)) << endl;
 }
 
 SRun RPSRBT::cutOutSingleRunFromRule(Rule &rule) {

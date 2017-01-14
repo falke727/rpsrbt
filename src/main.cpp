@@ -2,6 +2,7 @@
 
 int main(int argc, char* argv[])
 {
+  list<Rule> *orulelist = new list<Rule>;
   list<Rule> *rulelist = new list<Rule>;
   list<string> *packets = new list<string>;
   RPSRBT *rpsrbt = NULL;
@@ -11,7 +12,7 @@ int main(int argc, char* argv[])
   if (!strcmp("-c",argv[1]) && argc == 4) {
     classbench_flag = true;
     try {
-      readClassBenchRulelist(argv[2],rulelist);
+      readClassBenchRulelist(argv[2],orulelist);
     } catch (string error_message) {
       cout << error_message; return 1;
     }
@@ -26,12 +27,13 @@ int main(int argc, char* argv[])
   }  else if (argc == 3) {
     /* open and read a rulelist */
     try {
-      readRulelist(argv[1],rulelist);
+      readRulelist(argv[1],orulelist);
     } catch (string error_message) {
       cout << error_message; return 1;
     }
     /* delete included rules */
-    deleteIncludedRules(rulelist);
+    deleteIncludedRules(orulelist, rulelist);
+    delete orulelist;
 
     /* open and read packets */
     try {
@@ -41,7 +43,15 @@ int main(int argc, char* argv[])
     }
 
     /* make a Reduced Pointed Single-Run-Based Trie */
+    chrono::system_clock::time_point s;
+    chrono::system_clock::time_point e;
+    double t;
+
+    s = chrono::system_clock::now();
     rpsrbt = new RPSRBT(*rulelist);
+    e = chrono::system_clock::now();
+    t = chrono::duration_cast<chrono::nanoseconds>(e-s).count()/1e9;
+    cout << "RPSRBT Constrcut Time:  " << t << endl;
     // rpsrbt->traverse();
 
   } else {
@@ -63,7 +73,7 @@ int main(int argc, char* argv[])
   classifyViaRPSRBT(rpsrbt, packets, resultOfRPSRBT);
   cout << "RPSRBT Search Time:     " << Result::getLatencyRPSRBT() << endl;
   cout << "RPSRBT Search Comp:     " << Result::getCompareNumberOfRPSRBT() << endl;
-  cout << "RPSRBT Constrcut Time:  " << RPSRBT::getConstructTimeRPSRBT() << endl;
+
 
   // assert(0 == checkClassifyResult(resultOfSequential, results));
 
